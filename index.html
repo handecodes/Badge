@@ -18,6 +18,7 @@ p{margin-top:8px;font-size:clamp(11px,3.2vmin,15px);opacity:.75;text-align:cente
 #dots{position:fixed;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:7px;pointer-events:none}
 #dots i{width:7px;height:7px;border-radius:50%;background:#555}
 #dots i.on{background:#d33}
+#hint{position:fixed;top:6px;left:0;right:0;text-align:center;font-size:12px;opacity:.6;pointer-events:none;transition:opacity .3s}
 .empty{opacity:.6;text-align:center;font-size:14px}
 </style></head><body>
 <div id="track">
@@ -26,6 +27,7 @@ p{margin-top:8px;font-size:clamp(11px,3.2vmin,15px);opacity:.75;text-align:cente
  <section class="slide"><h2>Side Quests</h2><div class="qr"><img src="qr-sidequests.png" alt=""></div><p>handecodes.github.io/side-quest</p></section>
  <section class="slide"><h2>LinkedIn</h2><div class="qr"><img src="qr-linkedin.png" alt=""></div><p>linkedin.com/in/handebengu</p></section>
 </div>
+<div id="hint">tap once for fullscreen</div>
 <div id="dots"></div>
 <script>
 const track=document.getElementById('track'),dots=document.getElementById('dots');
@@ -40,5 +42,12 @@ fetch('media.json').then(r=>r.json()).then(list=>{
 let lock=null;async function wake(){try{lock=await navigator.wakeLock.request('screen')}catch(e){}}
 wake();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake()});
 document.addEventListener('click',wake);
+const hint=document.getElementById('hint'),root=document.documentElement;
+function fsOn(){return document.fullscreenElement||document.webkitFullscreenElement}
+function showHint(){hint.style.opacity=fsOn()?0:.6}
+function goFs(){if(fsOn())return;const f=root.requestFullscreen||root.webkitRequestFullscreen;if(f)try{const r=f.call(root,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
+document.addEventListener('click',goFs);
+document.addEventListener('fullscreenchange',showHint);
+document.addEventListener('webkitfullscreenchange',showHint);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
