@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hande's Badge</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0a0a0a">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#0a0a0a;color:#eee;font-family:system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+#track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;height:100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 22px 30px}
+.slide img,.slide video{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px}
+.qr{background:#fff;padding:10px;border-radius:12px;width:min(62vmin,100%);aspect-ratio:1}
+.qr img{width:100%;height:100%;border-radius:0;image-rendering:pixelated}
+h2{font-size:clamp(16px,5vmin,26px);margin-bottom:10px;text-align:center}
+p{margin-top:8px;font-size:clamp(11px,3.2vmin,15px);opacity:.75;text-align:center;word-break:break-all}
+#dots{position:fixed;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:7px;pointer-events:none}
+#dots i{width:7px;height:7px;border-radius:50%;background:#555}
+#dots i.on{background:#d33}
+.empty{opacity:.6;text-align:center;font-size:14px}
+</style></head><body>
+<div id="track">
+ <section class="slide"><img src="badge.png" alt="Hande Bengü badge"></section>
+ <section class="slide"><h2>Portfolio</h2><div class="qr"><img src="qr-portfolio.png" alt=""></div><p>handecodes.github.io/PortfolioPage</p></section>
+ <section class="slide"><h2>Side Quests</h2><div class="qr"><img src="qr-sidequests.png" alt=""></div><p>handecodes.github.io/side-quest</p></section>
+ <section class="slide"><h2>LinkedIn</h2><div class="qr"><img src="qr-linkedin.png" alt=""></div><p>linkedin.com/in/handebengu</p></section>
+</div>
+<div id="dots"></div>
+<script>
+const track=document.getElementById('track'),dots=document.getElementById('dots');
+function sync(){dots.innerHTML='';const n=track.children.length;for(let i=0;i<n;i++){const d=document.createElement('i');dots.appendChild(d)}mark()}
+function mark(){const i=Math.round(track.scrollLeft/track.clientWidth);[...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i))}
+track.addEventListener('scroll',mark,{passive:true});
+fetch('media.json').then(r=>r.json()).then(list=>{
+ for(const f of list){const s=document.createElement('section');s.className='slide';
+  const v=/\.(mp4|webm|mov)$/i.test(f);const el=document.createElement(v?'video':'img');el.src='media/'+f;
+  if(v){el.controls=true;el.playsInline=true;el.loop=true}s.appendChild(el);track.appendChild(s)}
+}).catch(()=>{}).finally(sync);
+let lock=null;async function wake(){try{lock=await navigator.wakeLock.request('screen')}catch(e){}}
+wake();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake()});
+document.addEventListener('click',wake);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>
